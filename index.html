@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Touch of Darkness</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+French+Canon+SC&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --gold-light: #F4E0A5;
+            --gold-primary: #C5A059;
+            --gold-bright: #E5C158;
+            --gold-dark: #8C6D37;
+            --gold-shadow: rgba(197, 160, 89, 0.35);
+            --gold-glow: rgba(229, 193, 88, 0.6);
+
+            --bg-void: #050404;
+            --bg-velvet: #0c0b0a;
+            --bg-card: #080706;
+
+            --font-display: 'IM Fell French Canon SC', serif;
+            --font-body: 'IM Fell English', serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            min-height: 100vh;
+            overflow: hidden;
+            background-color: var(--bg-void);
+            font-family: var(--font-body);
+            color: var(--gold-primary);
+            position: relative;
+        }
+
+        #custom-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.35;
+            z-index: 1;
+            pointer-events: none;
+            transition: opacity 1.5s ease;
+        }
+
+        #dust-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        #screen-main-menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            padding-left: 10vw;
+            opacity: 1;
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            max-width: 520px;
+            z-index: 32;
+            animation: fadeInTitle 2s ease-out forwards;
+        }
+
+        .title-header {
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .main-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.8rem, 5.5vw, 5rem);
+            font-weight: 900;
+            letter-spacing: normal;
+            line-height: 1.1;
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-primary) 50%, var(--gold-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px var(--gold-shadow);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .sub-title {
+            font-family: var(--font-display);
+            font-size: clamp(0.9rem, 1.4vw, 1.3rem);
+            font-weight: 400;
+            letter-spacing: normal;
+            color: var(--gold-light);
+            opacity: 0.85;
+            text-shadow: 0 0 10px var(--gold-shadow);
+            text-transform: uppercase;
+            padding-left: 4px;
+        }
+
+        .filigree-divider {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin: 1.2rem 0 2rem 0;
+            color: var(--gold-primary);
+            opacity: 0.7;
+        }
+
+        .filigree-line {
+            flex-grow: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--gold-primary), transparent);
+        }
+
+        .filigree-line-right {
+            transform: scaleX(-1);
+        }
+
+        .filigree-symbol {
+            margin: 0 12px;
+            font-size: 1.1rem;
+            text-shadow: 0 0 8px var(--gold-primary);
+        }
+
+        .menu-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            width: 100%;
+        }
+
+        .menu-item {
+            font-family: var(--font-display);
+            font-size: clamp(1.4rem, 2.3vw, 1.9rem);
+            letter-spacing: normal;
+            color: var(--gold-primary);
+            opacity: 0.75;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            padding: 8px 12px 8px 0;
+            width: max-content;
+        }
+
+        .menu-item .item-text {
+            position: relative;
+            z-index: 2;
+        }
+
+        .menu-item .item-indicator {
+            position: absolute;
+            left: -28px;
+            opacity: 0;
+            transform: translateX(-8px);
+            transition: all 0.4s ease;
+            color: var(--gold-bright);
+            font-size: 1rem;
+            text-shadow: 0 0 8px var(--gold-bright);
+        }
+
+        .menu-item .hover-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background: linear-gradient(90deg, var(--gold-bright), transparent);
+            transition: width 0.4s ease;
+            box-shadow: 0 0 6px var(--gold-bright);
+        }
+
+        .menu-item:hover, .menu-item:active {
+            color: var(--gold-light);
+            opacity: 1;
+            transform: translateX(12px);
+            text-shadow: 0 0 12px var(--gold-glow);
+        }
+
+        .menu-item:hover .item-indicator, .menu-item:active .item-indicator {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .menu-item:hover .hover-line, .menu-item:active .hover-line {
+            width: 100%;
+        }
+
+        #screen-gift-box {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.2s ease;
+            background: radial-gradient(circle at center, rgba(12, 11, 10, 0.85) 0%, rgba(5, 4, 4, 0.98) 100%);
+        }
+
+        #screen-gift-box.active {
+            display: flex;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .dialogue-container {
+            position: absolute;
+            bottom: 8%;
+            width: 85%;
+            max-width: 750px;
+            background: rgba(8, 7, 6, 0.92);
+            border: 1px solid var(--gold-dark);
+            box-shadow: 0 0 30px rgba(0,0,0,0.9), inset 0 0 15px var(--gold-shadow);
+            padding: 1.8rem 2.5rem 1rem 2.5rem;
+            border-radius: 4px;
+            text-align: center;
+            z-index: 50;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            cursor: pointer;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: auto;
+        }
+
+        .dialogue-container::before, .dialogue-container::after {
+            content: "";
+            position: absolute;
+            color: var(--gold-primary);
+            font-size: 0.9rem;
+        }
+
+        .dialogue-container::before { top: 6px; left: 10px; }
+        .dialogue-container::after { bottom: 6px; right: 10px; }
+
+        .dialogue-text {
+            font-family: var(--font-body);
+            font-size: clamp(1.2rem, 2.2vw, 1.6rem);
+            color: var(--gold-light);
+            letter-spacing: normal;
+            line-height: 1.6;
+            min-height: 2.8em;
+            text-shadow: 0 0 8px var(--gold-shadow);
+        }
+
+        .dialogue-prompt {
+            margin-top: 0.3rem;
+            margin-bottom: -0.2rem;
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            letter-spacing: normal;
+            color: var(--gold-dark);
+            text-transform: uppercase;
+            animation: pulseGlow 2s infinite alternate;
+        }
+
+        .box-instruction {
+            position: absolute;
+            top: 18%;
+            font-family: var(--font-display);
+            font-size: clamp(0.9rem, 1.4vw, 1.2rem);
+            letter-spacing: normal;
+            color: var(--gold-light);
+            text-shadow: 0 0 15px var(--gold-glow);
+            opacity: 0;
+            transition: opacity 1s ease;
+            pointer-events: none;
+            text-transform: uppercase;
+        }
+
+        .box-instruction.visible {
+            opacity: 1;
+            animation: pulseInstruction 2.5s infinite alternate;
+        }
+
+        .stage-3d {
+            width: 300px;
+            height: 300px;
+            perspective: 1200px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 2rem;
+            animation: floatBox 4s ease-in-out infinite alternate;
+        }
+
+        /* ---------- 3D BOX ---------- */
+        .box-3d {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(-24deg) rotateY(-32deg);
+            transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+            cursor: pointer;
+            pointer-events: none;
+        }
+
+        .box-3d.clickable {
+            pointer-events: auto;
+        }
+
+        .box-3d.clickable:hover {
+            transform: rotateX(-20deg) rotateY(-26deg) scale(1.03);
+        }
+
+        .box-face {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #141210 0%, #080706 100%);
+            border: 1px solid var(--gold-dark);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .box-face::before {
+            content: "✦";
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            font-size: 0.7rem;
+            color: var(--gold-primary);
+            opacity: 0.7;
+        }
+
+        .box-face::after {
+            content: "✦";
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            font-size: 0.7rem;
+            color: var(--gold-primary);
+            opacity: 0.7;
+        }
+
+        .ribbon-v {
+            position: absolute;
+            width: 26px;
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold-light) 50%, var(--gold-dark) 100%);
+            box-shadow: 0 0 8px rgba(0,0,0,0.8);
+            z-index: 1;
+        }
+
+        .ribbon-h {
+            position: absolute;
+            width: 100%;
+            height: 26px;
+            background: linear-gradient(180deg, var(--gold-dark) 0%, var(--gold-light) 50%, var(--gold-dark) 100%);
+            box-shadow: 0 0 8px rgba(0,0,0,0.8);
+            z-index: 1;
+        }
+
+        .face-front  { transform: translateZ(100px); }
+        .face-back   { transform: rotateY(180deg) translateZ(100px); }
+        .face-right  { transform: rotateY(90deg) translateZ(100px); }
+        .face-left   { transform: rotateY(-90deg) translateZ(100px); }
+        .face-bottom { transform: rotateX(-90deg) translateZ(100px); box-shadow: 0 25px 50px rgba(0,0,0,0.95); }
+
+        /* ---------- LID ---------- */
+        /* Hinge sits on the TOP-BACK edge of the box */
+        .lid-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200px;
+            height: 0;
+            transform-style: preserve-3d;
+            transform-origin: 50% 0 -100px;
+            transform: rotateX(0deg);
+            transition: transform 1.4s cubic-bezier(0.34, 1.2, 0.5, 1);
+        }
+
+        /* Lid is 220px (box is 200px) so it overhangs the box like a real gift-box lid */
+        .box-lid {
+            position: absolute;
+            top: -110px;
+            left: -10px;
+            width: 220px;
+            height: 220px;
+            background: linear-gradient(135deg, #181512 0%, #080706 100%);
+            border: 1px solid var(--gold-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 15px var(--gold-shadow);
+            transform-style: preserve-3d;
+            transform: rotateX(90deg) translateZ(3px);
+        }
+
+        /* Rim hanging down around the box */
+        .lid-lip {
+            position: absolute;
+            background: linear-gradient(135deg, #1a1714 0%, #080706 100%);
+            border: 1px solid var(--gold-primary);
+            overflow: hidden;
+        }
+        .lid-lip-front { width: 220px; height: 26px; bottom: 0; left: 0; transform-origin: bottom center; transform: rotateX(90deg); }
+        .lid-lip-back  { width: 220px; height: 26px; top: 0; left: 0; transform-origin: top center; transform: rotateX(-90deg); }
+        .lid-lip-left  { width: 26px; height: 220px; top: 0; left: 0; transform-origin: left center; transform: rotateY(90deg); }
+        .lid-lip-right { width: 26px; height: 220px; top: 0; right: 0; transform-origin: right center; transform: rotateY(-90deg); }
+
+        .lip-rib-v, .lip-rib-h {
+            position: absolute;
+            background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold-light) 50%, var(--gold-dark) 100%);
+        }
+        .lip-rib-v { left: calc(50% - 13px); top: 0; width: 26px; height: 100%; }
+        .lip-rib-h { top: calc(50% - 13px); left: 0; width: 100%; height: 26px;
+            background: linear-gradient(180deg, var(--gold-dark) 0%, var(--gold-light) 50%, var(--gold-dark) 100%); }
+
+        /* ---------- BOW (stands up from the lid: +z in lid space) ---------- */
+        .bow-loop {
+            position: absolute;
+            width: 62px;
+            height: 50px;
+            left: calc(50% - 31px);
+            top: calc(50% - 50px);
+            transform-origin: 50% 100%;
+            border-radius: 50% 50% 42% 42%;
+            background: radial-gradient(ellipse at 50% 62%, transparent 0 30%, var(--gold-dark) 33%, var(--gold-light) 55%, var(--gold-primary) 80%, var(--gold-dark) 100%);
+            filter: drop-shadow(0 0 4px rgba(0,0,0,0.8));
+        }
+        .bow-a { transform: rotateX(-90deg) rotateZ(-44deg); }
+        .bow-b { transform: rotateX(-90deg) rotateZ(44deg); }
+        .bow-c { transform: rotateZ(90deg) rotateX(-90deg) rotateZ(-50deg) scale(0.8); }
+        .bow-d { transform: rotateZ(90deg) rotateX(-90deg) rotateZ(50deg) scale(0.8); }
+
+        .bow-knot {
+            position: absolute;
+            width: 26px;
+            height: 22px;
+            left: calc(50% - 13px);
+            top: calc(50% - 22px);
+            transform-origin: 50% 100%;
+            border-radius: 40%;
+            background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold-light) 50%, var(--gold-dark) 100%);
+            box-shadow: 0 0 6px rgba(0,0,0,0.8);
+        }
+        .knot-a { transform: rotateX(-90deg); }
+        .knot-b { transform: rotateZ(90deg) rotateX(-90deg); }
+
+        .bow-tail {
+            position: absolute;
+            width: 22px;
+            height: 70px;
+            left: calc(50% - 11px);
+            top: 50%;
+            transform-origin: 50% 0;
+            background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold-light) 50%, var(--gold-dark) 100%);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%);
+        }
+        .tail-a { transform: translateZ(4px) rotateZ(20deg); }
+        .tail-b { transform: translateZ(4px) rotateZ(-20deg); }
+
+        /* Positive rotateX lifts the front edge up and over the back hinge */
+        .box-3d.opened .lid-wrapper {
+            transform: rotateX(115deg);
+        }
+
+        /* Glow rises out of the open top */
+        .box-light-burst {
+            position: absolute;
+            top: -90px;
+            left: 10px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, var(--gold-bright) 0%, var(--gold-dark) 40%, transparent 80%);
+            opacity: 0;
+            transform: rotateX(90deg) scale(0.2);
+            transition: all 1.5s ease-out;
+            pointer-events: none;
+            filter: blur(10px);
+        }
+
+        .box-3d.opened .box-light-burst {
+            opacity: 0.85;
+            transform: rotateX(90deg) translateZ(40px) scale(2.2);
+        }
+
+        /* ---------- LETTER ---------- */
+        .letter-container {
+            position: absolute;
+            width: 85%;
+            max-width: 580px;
+            background: #080706;
+            border: 1px solid var(--gold-primary);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.95), inset 0 0 25px rgba(197, 160, 89, 0.12);
+            padding: 2.5rem;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(60px) scale(0.85);
+            transition: all 1.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+            z-index: 40;
+            pointer-events: none;
+        }
+
+        .letter-container.revealed {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .letter-corner {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--gold-bright);
+        }
+
+        .corner-tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+        .corner-tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+        .corner-bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+        .corner-br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+
+        .letter-content {
+            font-family: var(--font-body);
+            font-size: clamp(1.05rem, 1.4vw, 1.3rem);
+            color: var(--gold-light);
+            line-height: 1.75;
+            letter-spacing: normal;
+            text-shadow: 0 0 6px var(--gold-shadow);
+            white-space: pre-line;
+        }
+
+        /* ---------- ANIMATIONS ---------- */
+        @keyframes fadeInTitle {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulseGlow {
+            0% { opacity: 0.4; }
+            100% { opacity: 0.9; }
+        }
+
+        @keyframes pulseInstruction {
+            0% { opacity: 0.6; transform: translateY(0); }
+            100% { opacity: 1; transform: translateY(-5px); }
+        }
+
+        @keyframes floatBox {
+            from { translate: 0 0; }
+            to   { translate: 0 -8px; }
+        }
+
+        @media (max-width: 900px) {
+            #screen-main-menu { padding-left: 6vw; }
+            .stage-3d { transform: scale(0.85); }
+            .letter-container { width: 90%; padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="custom-bg"></div>
+    <canvas id="dust-canvas"></canvas>
+
+    <section id="screen-main-menu">
+        <div class="menu-container">
+            <div class="title-header">
+                <h1 class="main-title" id="ui-main-title">A TOUCH OF<br>DARKNESS</h1>
+                <div class="sub-title" id="ui-sub-title">MADE BY XIA</div>
+            </div>
+
+            <div class="filigree-divider">
+                <div class="filigree-line"></div>
+                <span class="filigree-symbol">✦</span>
+                <div class="filigree-line filigree-line-right"></div>
+            </div>
+
+            <nav class="menu-options">
+                <div class="menu-item" id="btn-play">
+                    <span class="item-indicator">✦</span>
+                    <span class="item-text">PLAY</span>
+                    <div class="hover-line"></div>
+                </div>
+
+                <div class="menu-item" id="btn-settings">
+                    <span class="item-indicator">✦</span>
+                    <span class="item-text">SETTINGS</span>
+                    <div class="hover-line"></div>
+                </div>
+
+                <div class="menu-item" id="btn-extras">
+                    <span class="item-indicator">✦</span>
+                    <span class="item-text">EXTRAS</span>
+                    <div class="hover-line"></div>
+                </div>
+
+                <div class="menu-item" id="btn-exit">
+                    <span class="item-indicator">✦</span>
+                    <span class="item-text">EXIT</span>
+                    <div class="hover-line"></div>
+                </div>
+            </nav>
+        </div>
+    </section>
+
+    <section id="screen-gift-box">
+        <div class="box-instruction" id="box-prompt">CLICK THE BOX TO OPEN</div>
+
+        <div class="stage-3d">
+            <div class="box-3d" id="interactive-box">
+                <div class="box-light-burst"></div>
+
+                <div class="lid-wrapper">
+                    <div class="box-lid">
+                        <div class="ribbon-v"></div>
+                        <div class="ribbon-h"></div>
+
+                        <div class="lid-lip lid-lip-front"><div class="lip-rib-v"></div></div>
+                        <div class="lid-lip lid-lip-left"><div class="lip-rib-h"></div></div>
+                        <div class="lid-lip lid-lip-right"><div class="lip-rib-h"></div></div>
+                        <div class="lid-lip lid-lip-back"><div class="lip-rib-v"></div></div>
+
+                        <div class="bow-tail tail-a"></div>
+                        <div class="bow-tail tail-b"></div>
+                        <div class="bow-loop bow-c"></div>
+                        <div class="bow-loop bow-d"></div>
+                        <div class="bow-loop bow-a"></div>
+                        <div class="bow-loop bow-b"></div>
+                        <div class="bow-knot knot-a"></div>
+                        <div class="bow-knot knot-b"></div>
+                    </div>
+                </div>
+
+                <div class="box-face face-front"><div class="ribbon-v"></div></div>
+                <div class="box-face face-back"><div class="ribbon-v"></div></div>
+                <div class="box-face face-left"><div class="ribbon-v"></div></div>
+                <div class="box-face face-right"><div class="ribbon-v"></div></div>
+                <div class="box-face face-bottom"></div>
+            </div>
+        </div>
+
+        <div class="dialogue-container" id="dialogue-box">
+            <div class="dialogue-text" id="dialogue-text-content"></div>
+            <div class="dialogue-prompt">CLICK TO CONTINUE</div>
+        </div>
+
+        <div class="letter-container" id="revealed-letter">
+            <div class="letter-corner corner-tl"></div>
+            <div class="letter-corner corner-tr"></div>
+            <div class="letter-corner corner-bl"></div>
+            <div class="letter-corner corner-br"></div>
+
+            <div style="font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 1.2rem; color: var(--gold-bright); letter-spacing: normal;">
+                DECREE OF FATE
+            </div>
+
+            <div class="letter-content" id="ui-letter-content">
+                LOREM IPSUM
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const CONFIG = {
+            backgroundImageUrl: "",
+            mainTitle: "A TOUCH OF\nDARKNESS",
+            subTitle: "MADE BY XIA",
+            dialogueSequence: [
+                "In the shadow of the forgotten citadel, an ancient relic awaits your touch...",
+                "Bound by blood and golden threads of fate, the seal responds only to you."
+            ],
+            letterContent: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            enableSoundEffects: true,
+            audioVolume: 0.3
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (CONFIG.backgroundImageUrl) {
+                const bgElem = document.getElementById("custom-bg");
+                bgElem.style.backgroundImage = `url('${CONFIG.backgroundImageUrl}')`;
+                bgElem.style.opacity = "0.45";
+            }
+
+            document.getElementById("ui-main-title").innerHTML = CONFIG.mainTitle.replace(/\n/g, "<br>");
+            document.getElementById("ui-sub-title").textContent = CONFIG.subTitle;
+            document.getElementById("ui-letter-content").textContent = CONFIG.letterContent;
+
+            initDustParticles();
+        });
+
+        function initDustParticles() {
+            const canvas = document.getElementById('dust-canvas');
+            const ctx = canvas.getContext('2d');
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            const particles = [];
+            const particleCount = 45;
+
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.5 + 0.5,
+                    alpha: Math.random() * 0.6 + 0.2,
+                    vx: (Math.random() - 0.5) * 0.3,
+                    vy: -Math.random() * 0.4 - 0.1
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.y < 0) p.y = canvas.height;
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.x > canvas.width) p.x = 0;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(229, 193, 88, ${p.alpha})`;
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = '#C5A059';
+                    ctx.fill();
+                });
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function playCeremonialChime() {
+            if (!CONFIG.enableSoundEffects) return;
+
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+
+                const frequencies = [277.18, 349.23, 415.30, 554.37];
+
+                frequencies.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+                    gain.gain.setValueAtTime(0, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(CONFIG.audioVolume / (idx + 1), ctx.currentTime + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 3.5);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(ctx.currentTime + (idx * 0.08));
+                    osc.stop(ctx.currentTime + 3.8);
+                });
+            } catch (e) {
+                console.log("Audio muted or unsupported:", e);
+            }
+        }
+
+        const btnPlay = document.getElementById('btn-play');
+        const screenMainMenu = document.getElementById('screen-main-menu');
+        const screenGiftBox = document.getElementById('screen-gift-box');
+
+        btnPlay.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            btnPlay.style.pointerEvents = 'none';
+
+            screenMainMenu.style.opacity = '0';
+            screenMainMenu.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+                screenMainMenu.style.display = 'none';
+                screenGiftBox.classList.add('active');
+
+                setTimeout(() => {
+                    startDialogueSequence();
+                }, 100);
+            }, 1000);
+        });
+
+        let currentDialogueIndex = 0;
+        let isTyping = false;
+        let typeTimer = null;
+
+        const dialogueBox = document.getElementById('dialogue-box');
+        const dialogueText = document.getElementById('dialogue-text-content');
+        const boxPrompt = document.getElementById('box-prompt');
+        const interactiveBox = document.getElementById('interactive-box');
+        const revealedLetter = document.getElementById('revealed-letter');
+
+        function startDialogueSequence() {
+            currentDialogueIndex = 0;
+            interactiveBox.classList.remove('clickable');
+            dialogueBox.style.display = 'flex';
+            dialogueBox.style.opacity = '1';
+            dialogueBox.style.pointerEvents = 'auto';
+            showDialogueStep(0);
+        }
+
+        function showDialogueStep(index) {
+            if (index >= CONFIG.dialogueSequence.length) {
+                dialogueBox.style.opacity = '0';
+                dialogueBox.style.pointerEvents = 'none';
+
+                setTimeout(() => {
+                    dialogueBox.style.display = 'none';
+                    boxPrompt.classList.add('visible');
+                    interactiveBox.classList.add('clickable');
+                }, 600);
+                return;
+            }
+
+            isTyping = true;
+            dialogueText.textContent = "";
+            const fullText = CONFIG.dialogueSequence[index];
+            let charIndex = 0;
+
+            if (typeTimer) clearInterval(typeTimer);
+
+            typeTimer = setInterval(() => {
+                if (charIndex < fullText.length) {
+                    dialogueText.textContent += fullText.charAt(charIndex);
+                    charIndex++;
+                } else {
+                    clearInterval(typeTimer);
+                    isTyping = false;
+                }
+            }, 40);
+        }
+
+        dialogueBox.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (isTyping) {
+                clearInterval(typeTimer);
+                dialogueText.textContent = CONFIG.dialogueSequence[currentDialogueIndex];
+                isTyping = false;
+            } else {
+                currentDialogueIndex++;
+                showDialogueStep(currentDialogueIndex);
+            }
+        });
+
+        let boxOpened = false;
+
+        interactiveBox.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (boxOpened || !interactiveBox.classList.contains('clickable')) return;
+            boxOpened = true;
+
+            boxPrompt.classList.remove('visible');
+            playCeremonialChime();
+            interactiveBox.classList.add('opened');
+
+            setTimeout(() => {
+                revealedLetter.classList.add('revealed');
+            }, 1200);
+        });
+    </script>
+</body>
+</html>
