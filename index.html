@@ -494,7 +494,7 @@
 
         /* Positive rotateX lifts the front edge up and over the back hinge */
         .box-3d.opened .lid-wrapper {
-            transform: rotateX(115deg);
+            transform: rotateX(105deg);
         }
 
         /* Glow rises out of the open top */
@@ -518,10 +518,39 @@
         }
 
         /* ---------- LETTER ---------- */
-        .letter-container {
+        /* Full-screen scroll layer: the whole paper scrolls over the gift box */
+        .letter-overlay {
             position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 40;
+            display: flex;
+            padding: 6vh 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            pointer-events: none;
+            scrollbar-width: none;
+        }
+        .letter-overlay.active { pointer-events: auto; }
+        .letter-overlay::-webkit-scrollbar {
+    display: none;
+}
+
+.letter-overlay {
+    scrollbar-width: none;
+}
+
+        /* Paper grows with the text. margin:auto centers it when short, starts at the top when tall */
+        .letter-container {
+            position: relative;
+            flex: none;
             width: 85%;
             max-width: 580px;
+            margin: auto;
             background: #080706;
             border: 1px solid var(--gold-primary);
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.95), inset 0 0 25px rgba(197, 160, 89, 0.12);
@@ -530,8 +559,15 @@
             opacity: 0;
             transform: translateY(60px) scale(0.85);
             transition: all 1.8s cubic-bezier(0.165, 0.84, 0.44, 1);
-            z-index: 40;
             pointer-events: none;
+        }
+
+        .letter-title {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            margin-bottom: 1.2rem;
+            color: var(--gold-bright);
+            letter-spacing: normal;
         }
 
         .letter-container.revealed {
@@ -560,6 +596,7 @@
             letter-spacing: normal;
             text-shadow: 0 0 6px var(--gold-shadow);
             white-space: pre-line;
+            overflow-wrap: anywhere;
         }
 
         /* ---------- ANIMATIONS ---------- */
@@ -677,19 +714,19 @@
             <div class="dialogue-prompt">CLICK TO CONTINUE</div>
         </div>
 
+        <div class="letter-overlay" id="letter-overlay">
         <div class="letter-container" id="revealed-letter">
             <div class="letter-corner corner-tl"></div>
             <div class="letter-corner corner-tr"></div>
             <div class="letter-corner corner-bl"></div>
             <div class="letter-corner corner-br"></div>
 
-            <div style="font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 1.2rem; color: var(--gold-bright); letter-spacing: normal;">
-                DEAR ZAYZAY
-            </div>
+            <div class="letter-title">DEAR ZAYZAY</div>
 
             <div class="letter-content" id="ui-letter-content">
                 LOREM IPSUM
             </div>
+        </div>
         </div>
     </section>
 
@@ -702,7 +739,7 @@
                 "Carefully wrapped, thoughtfully chosen, and finally placed in your hands.",
                 "All that remains now is for you to open it.."
             ],
-            letterContent: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. \n AAAADHUAZES  XRDCTFVYMM EIWVJRI JUWHRYVH NSMCK SDMCOIEIFUHE EBTETRVFV  TYEHTRVRJCIDK IDSMKA LALAAKSK JFHRNVMC XOCERYTY HUFVDIOCXPZCZ BGEYUIKDM FYBV WMFV WVRFWJIOEFR WEMOFS FE RFKERO VKOON B V 6TV7 YBUN I OP LKI U B Y VT VB YNUI OM O, OKJURUE8WE9FNNRWMEOPF GTE GT GYR TBERVFCDSX D T YBH U  JH  Y9Jipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. \n AAAADHUAZES  XRDCTFVYMM EIWVJRI JUWHRYVH NSMCK SDMCipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. \n AAAADHUAZES  XRDCTFVYMM EIWVJRI JUWHRYVH NSMCK SDMCOIEIFUHE EBTETRVFV  TYEHTRVRJCIDK IDSMKA LALAAKSK JFHRNVMC XOCERYTY HUFVDIOCXPZCZ BGEYUIKDM FYBV WMFV WVRFWJIOEFR WEMOFS FE RFKERO VKOON B V 6TV7 YBUN I OP LKI U B Y VT VB YNUI OM O, OKJURUE8WE9FNNRWMEOPF GTE GT GYR TBERVFCDSX D T YBH U  JH  Y9JOIEIFUHE EBTETRVFV  TYEHTRVRJCIDK IDSMKA LALAAKSK JFHRNVMC XOCERYTY HUFVDIOCXPZCZ BGEYUIKDM FYBV WMFV WVRFWJIOEFR WEMOFS FE RFKERO VKOON B V 6TV7 YBUN I OP LKI U B Y VT VB YNUI OM O, OKJURUE8WE9FNNRWMEOPF GTE GT GYR TBERVFCDSX D T YBH U  JH  Y9J",
+            letterContent: "Paste your letter here. Use \\n\\n between paragraphs.\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n\nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\nSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.",
             enableSoundEffects: true,
             audioVolume: 0.3
         };
@@ -902,7 +939,12 @@
             playCeremonialChime();
             interactiveBox.classList.add('opened');
 
+            const letterOverlay = document.getElementById('letter-overlay');
+            letterOverlay.scrollTop = 0;
+
             setTimeout(() => {
+                letterOverlay.scrollTop = 0;
+                letterOverlay.classList.add('active');
                 revealedLetter.classList.add('revealed');
             }, 1200);
         });
