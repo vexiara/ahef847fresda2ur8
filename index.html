@@ -96,13 +96,13 @@
         }
 
         .title-header {
-            margin-bottom: 2.5rem;
+            margin-bottom: min(2.5rem, 3.5vh);
             position: relative;
         }
 
         .main-title {
             font-family: var(--font-display);
-            font-size: clamp(2.8rem, 5.5vw, 5rem);
+            font-size: clamp(2rem, min(5.5vw, 9vh), 4.2rem);
             font-weight: 900;
             letter-spacing: normal;
             line-height: 1.1;
@@ -116,7 +116,7 @@
 
         .sub-title {
             font-family: var(--font-display);
-            font-size: clamp(0.9rem, 1.4vw, 1.3rem);
+            font-size: clamp(0.8rem, min(1.4vw, 2.2vh), 1.1rem);
             font-weight: 400;
             letter-spacing: normal;
             color: var(--gold-light);
@@ -130,7 +130,7 @@
             display: flex;
             align-items: center;
             width: 100%;
-            margin: 1.2rem 0 2rem 0;
+            margin: min(1.2rem, 2vh) 0 min(2rem, 3vh) 0;
             color: var(--gold-primary);
             opacity: 0.7;
         }
@@ -154,13 +154,13 @@
         .menu-options {
             display: flex;
             flex-direction: column;
-            gap: 1.2rem;
+            gap: min(1.2rem, 1.8vh);
             width: 100%;
         }
 
         .menu-item {
             font-family: var(--font-display);
-            font-size: clamp(1.4rem, 2.3vw, 1.9rem);
+            font-size: clamp(1.1rem, min(2.3vw, 3.8vh), 1.6rem);
             letter-spacing: normal;
             color: var(--gold-primary);
             opacity: 0.75;
@@ -624,6 +624,11 @@
             #screen-main-menu { padding-left: 6vw; }
             .stage-3d { transform: scale(0.85); }
             .letter-container { width: 90%; padding: 2rem; }
+        }
+
+        @media (max-height: 800px) {
+            .stage-3d { transform: scale(0.8); margin-top: 0; }
+            .letter-container { padding: 1.8rem; }
         }
     </style>
 </head>
